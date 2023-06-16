@@ -1,72 +1,56 @@
 const contactsOperations = require("../../models/contacts");
 const { NotFound } = require("http-errors");
+const { Contact } = require("../../models");
 
-const add = async (req, res, next) => {
-  const result = await contactsOperations.addContact(req.body);
-  res.status(201).json({
-    status: "success",
-    code: 201,
-    data: {
-      result,
-    },
-  });
+const add = async (req, res) => {
+  const result = await contactsOperations.create(req.body);
+  res.status(201).json(result);
 };
 
 const getAll = async (req, res) => {
-  const contacts = await contactsOperations.listContacts();
-  res.json({
-    status: "success",
-    code: 200,
-    data: {
-      results: contacts,
-    },
-  });
+  const contacts = await Contact.find({});
+  res.json(contacts);
 };
 
 const getById = async (req, res, next) => {
   const { id } = req.params;
-  const result = await contactsOperations.getContactById(id);
+  const result = await Contact.findById(id);
   if (!result) {
-    throw new NotFound("Not found");
+    throw new NotFound(`Not found`);
   }
-  res.json({
-    status: "success",
-    code: 200,
-    data: {
-      result,
-    },
-  });
+  res.json(result);
 };
 
 const removeById = async (req, res, next) => {
   const { id } = req.params;
-  const result = await contactsOperations.removeContact(id);
+  const result = await Contact.findByIdAndRemove(id);
   if (!result) {
-    throw new NotFound("Not found");
+    throw new NotFound(`Not found`);
   }
-  res.json({
-    status: "success",
-    code: 200,
-    message: "contact deleted",
-    data: {
-      result,
-    },
-  });
+  res.json(result);
 };
 
 const updateById = async (req, res, next) => {
   const { id } = req.params;
-  const result = await contactsOperations.updateContact(id, req.body);
+  const result = await Contact.findByIdAndUpdate(id, req.body, { new: true });
   if (!result) {
-    throw new NotFound("Not found");
+    throw new NotFound(`Not found`);
   }
-  res.json({
-    status: "success",
-    code: 200,
-    data: {
-      result,
-    },
-  });
+  res.json(result);
+};
+
+const updateStatusContact = async (req, res, next) => {
+  const { id } = req.params;
+  const { favorite } = req.body;
+  const result = await Contact.findByIdAndUpdate(
+    id,
+    { favorite },
+    { new: true }
+  );
+  if (!result) {
+    throw new NotFound(`Not found`);
+  }
+  res.json(result);
 };
 
 module.exports = {
@@ -75,4 +59,5 @@ module.exports = {
   getById,
   removeById,
   updateById,
+  updateStatusContact,
 };
