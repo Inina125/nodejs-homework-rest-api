@@ -13,10 +13,16 @@ const contactSchema = new Schema(
     },
     phone: {
       type: String,
+      minlength: 6,
     },
     favorite: {
       type: Boolean,
       default: false,
+    },
+    owner: {
+      type: Schema.Types.ObjectId,
+      ref: "user",
+      require: true,
     },
   },
   { versionKey: false }
